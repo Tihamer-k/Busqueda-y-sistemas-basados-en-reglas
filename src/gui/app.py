@@ -98,6 +98,7 @@ class RouteApp:
         """
         origen = self.origen_cb.get().strip()
         destino = self.destino_cb.get().strip()
+        self.resultado_text.config(state=tk.NORMAL)
         self.resultado_text.delete(1.0, tk.END)
 
         if not origen or not destino:
@@ -127,4 +128,4 @@ class RouteApp:
                 self.resultado_text.insert(
                     tk.END,
                     "\nNo se encontró ninguna ruta alternativa que se acerque al destino.")
-        self.resultado_text.config(state=tk.DISABLED)
+            self.resultado_text.config(state=tk.DISABLED)
