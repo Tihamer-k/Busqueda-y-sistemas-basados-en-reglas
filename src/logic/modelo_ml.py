@@ -56,6 +56,7 @@ def predecir_troncal_por_coords(lat, lon):
     plot_tree(estimator, feature_names=["latitud", "lon"], filled=True)
     plt.savefig("resources/arbol_decision.png")  # Guardar el árbol como imagen
     plt.close()
+    print("Árbol de decisión guardado como 'resources/arbol_decision.png'.")
     return troncal
 
 
