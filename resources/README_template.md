@@ -35,8 +35,12 @@ Antes de ejecutar el programa, asegúrate de tener instaladas las dependencias n
 1. 📅 Clona este repositorio o descarga los archivos.
 2. 🐍 Asegúrate de tener Python >=3.9 instalado.
 3. 📦 Instala las dependencias con `pip install -r requirements.txt`.
-4. ▶️ Ejecuta la aplicación con: `python main.py`
-5. 💅 La interfaz gráfica se abrirá y podrás comenzar a usar la aplicación.
+4. 🛠️ Crea un archivo `.env` en la raíz del proyecto y define la variable `API_TRANSMILENIO` con la URL de la API pública de TransMilenio.
+   ```text"
+   https://gis.transmilenio.gov.co/arcgis/rest/services/Troncal/consulta_estaciones_troncales/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson
+    ```
+5. ▶️ Ejecuta la aplicación con: `python main.py`
+6. 💅 La interfaz gráfica se abrirá y podrás comenzar a usar la aplicación.
 
 ## 🛠️ Uso
 
@@ -47,13 +51,18 @@ Antes de ejecutar el programa, asegúrate de tener instaladas las dependencias n
 3. 💡 En la pestaña "Predicción de Troncal (ML)":
    - Ingresa una latitud y longitud.
    - Obtendrás la troncal predicha según tu ubicación geográfica.
+   - También puedes ver el arbol de decisión utilizado para la predicción.
 4. 🌐 El sistema puede abrir Google Maps con la ubicación seleccionada.
 
 ## 📂 Estructura del Proyecto
 
 ```
 Proyecto/
-│── resources/              # 📂 Recursos del proyecto
+│── resources/                      # 📂 Recursos del proyecto
+│   └── modelo_troncal.pkl          # 🎯 Modelo de predicción guardado
+│   └── label_encoder_troncal.pkl   # 🧾 Codificador de etiquetas de troncal
+│   └── estaciones_transmilenio.csv # 📊 Exportación del dataset procesado
+│   └── arbol_decision.png          # 🌳 Visualización del árbol de decisión
 │── src/
 │   │── gui/                # 🎨 Código de la interfaz gráfica con Tkinter
 │   │   │── app.py          # 💅 Inicializa la aplicación de rutas y predicción
