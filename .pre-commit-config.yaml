@@ -5,4 +5,4 @@ repos:
         name: ✏️ Actualizar README.md con versión
         entry: bash -c "python generate_readme.py && git add README.md"
         language: system
-        files: ^(README_template\.md|version\.py)$
+        files: README_template.md
