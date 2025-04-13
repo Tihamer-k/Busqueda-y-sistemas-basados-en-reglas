@@ -53,6 +53,7 @@ Antes de ejecutar el programa, asegúrate de tener instaladas las dependencias n
 
 ```
 Proyecto/
+│── resources/              # 📂 Recursos del proyecto
 │── src/
 │   │── gui/                # 🎨 Código de la interfaz gráfica con Tkinter
 │   │   │── app.py          # 💅 Inicializa la aplicación de rutas y predicción

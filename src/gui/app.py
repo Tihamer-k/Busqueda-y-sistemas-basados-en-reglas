@@ -2,6 +2,10 @@ import re
 import tkinter as tk
 from tkinter import ttk, messagebox
 import webbrowser
+
+import joblib
+from PIL import ImageTk, Image
+
 from src.gui.autocombo import AutocompleteCombobox
 from src.logic.data import cargar_estaciones_api
 from src.logic.routing import (
@@ -199,6 +203,11 @@ class RouteApp:
                 troncal = predecir_troncal_por_coords(lat, lon)
                 self.pred_text.insert(tk.END, f"Predicción de troncal para ({lat}, {lon}):\n")
                 self.pred_text.insert(tk.END, f"➡️ Troncal: {troncal}\n")
+                # Cargar el codificador para ver las etiquetas originales
+                encoder = joblib.load("resources/label_encoder_troncal.pkl")
+                self.pred_text.insert(tk.END, f"➡️ Etiquetas originales: {encoder.classes_}\n")
+                self.pred_text.insert(tk.END, "✅ Predicción realizada con éxito.")
+
             else:
                 self.pred_text.insert(tk.END, "❌ Coordenadas inválidas. Ingresa una latitud entre -90 y 90 y una longitud entre -180 y 180.")
         except ValueError:
