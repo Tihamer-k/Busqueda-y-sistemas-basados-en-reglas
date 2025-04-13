@@ -35,8 +35,12 @@ Antes de ejecutar el programa, asegúrate de tener instaladas las dependencias n
 1. 📅 Clona este repositorio o descarga los archivos.
 2. 🐍 Asegúrate de tener Python >=3.9 instalado.
 3. 📦 Instala las dependencias con `pip install -r requirements.txt`.
-4. ▶️ Ejecuta la aplicación con: `python main.py`
-5. 💅 La interfaz gráfica se abrirá y podrás comenzar a usar la aplicación.
+4. 🛠️ Crea un archivo `.env` en la raíz del proyecto y define la variable `API_TRANSMILENIO` con la URL de la API pública de TransMilenio.
+   ```text"
+   https://gis.transmilenio.gov.co/arcgis/rest/services/Troncal/consulta_estaciones_troncales/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson
+    ```
+5. ▶️ Ejecuta la aplicación con: `python main.py`
+6. 💅 La interfaz gráfica se abrirá y podrás comenzar a usar la aplicación.
 
 ## 🛠️ Uso
 
