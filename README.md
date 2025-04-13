@@ -1,7 +1,7 @@
 # Búsqueda y sistemas basados en reglas 
 ## 🚏 Sistema Experto para Rutas de TransMilenio
 
-📎 Versión: `1.0.2`
+📎 Versión: `1.0.3`
 
 Este es un sistema experto desarrollado en Python utilizando Tkinter para la interfaz gráfica.
 Permite a los usuarios:
@@ -53,6 +53,7 @@ Antes de ejecutar el programa, asegúrate de tener instaladas las dependencias n
 
 ```
 Proyecto/
+│── resources/              # 📂 Recursos del proyecto
 │── src/
 │   │── gui/                # 🎨 Código de la interfaz gráfica con Tkinter
 │   │   │── app.py          # 💅 Inicializa la aplicación de rutas y predicción
