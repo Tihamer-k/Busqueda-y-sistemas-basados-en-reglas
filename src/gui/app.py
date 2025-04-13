@@ -1,23 +1,20 @@
-import re
+import os
 import tkinter as tk
-from tkinter import ttk, messagebox
 import webbrowser
+from tkinter import ttk, messagebox
 
 import joblib
 from PIL import ImageTk, Image
+from dotenv import load_dotenv
 
 from src.gui.autocombo import AutocompleteCombobox
 from src.logic.data import cargar_estaciones_api
+from src.logic.modelo_ml import predecir_troncal_por_coords, exportar_estaciones_csv
 from src.logic.routing import (
     construir_grafo_estaciones,
     buscar_mejor_ruta_estaciones,
     buscar_ruta_alternativa
 )
-from src.logic.modelo_ml import predecir_troncal_por_coords
-
-API_URL = ("https://gis.transmilenio.gov.co/arcgis/rest/services/"
-           "Troncal/consulta_estaciones_troncales/FeatureServer/0/"
-           "query?outFields=*&where=1%3D1&f=geojson")
 
 
 def validate_lat_lon(self, lat, lon):
@@ -74,6 +71,13 @@ class RouteApp:
 
         # Cargar datos desde la API
         try:
+            load_dotenv()  # Carga desde .env
+
+            API_URL = os.getenv("API_TRANSMILENIO")
+
+            if not API_URL:
+                raise ValueError("No se encontró la variable API_TRANSMILENIO en el archivo .env")
+
             self.estaciones = cargar_estaciones_api(API_URL)
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo cargar las estaciones:\n{e}")
@@ -132,6 +136,9 @@ class RouteApp:
 
         self.pred_btn = ttk.Button(frame, text="Predecir Troncal", command=self.mostrar_prediccion_troncal)
         self.pred_btn.grid(row=2, column=0, columnspan=2, pady=10)
+
+        self.arbol_btn = ttk.Button(frame, text="Ver Árbol de Decisión", command=self.mostrar_arbol_decision)
+        self.arbol_btn.grid(row=2, column=1, pady=10)
 
         self.pred_text = tk.Text(frame, wrap=tk.WORD, width=80, height=12)
         self.pred_text.grid(row=3, column=0, columnspan=2, pady=10)
@@ -207,13 +214,44 @@ class RouteApp:
                 encoder = joblib.load("resources/label_encoder_troncal.pkl")
                 self.pred_text.insert(tk.END, f"➡️ Etiquetas originales: {encoder.classes_}\n")
                 self.pred_text.insert(tk.END, "✅ Predicción realizada con éxito.")
-
+                
+                # Exportar estaciones a CSV
+                exportar_estaciones_csv(self.estaciones, "resources/estaciones_transmilenio.csv")
             else:
                 self.pred_text.insert(tk.END, "❌ Coordenadas inválidas. Ingresa una latitud entre -90 y 90 y una longitud entre -180 y 180.")
         except ValueError:
             messagebox.showerror("Error", "Ingrese valores numéricos válidos para latitud y longitud.")
 
         self.pred_text.config(state=tk.DISABLED)
+
+    def mostrar_arbol_decision(self):
+        """
+        Muestra el árbol de decisión en un pop-up.
+        """
+        try:
+            # Cargar la imagen del árbol de decisión
+            arbol_path = "resources/arbol_decision.png"
+            arbol_img = Image.open(arbol_path)
+            arbol_img = arbol_img.resize((600, 400), Image.Resampling.LANCZOS)  # Redimensionar si es necesario
+            arbol_tk = ImageTk.PhotoImage(arbol_img)
+
+            # Crear una nueva ventana para mostrar la imagen
+            arbol_window = tk.Toplevel(self.root)
+            arbol_window.title("Árbol de Decisión")
+            arbol_window.geometry("720x520")
+
+            # Mostrar la imagen en un label
+            label = tk.Label(arbol_window, image=arbol_tk)
+            label.image = arbol_tk  # Referencia para evitar que la imagen sea recolectada por el GC
+            label.pack()
+
+            # Agregar una descripción debajo de la imagen
+            descripcion = tk.Label(arbol_window, text="Este es el árbol de decisión generado por el modelo.",
+                                   font=("Arial", 10))
+            descripcion.pack(pady=10)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo cargar el árbol de decisión:\n{e}")
 
     def mostrar_en_mapa(self):
         estacion_nombre = self.estacion_cb.get().strip()

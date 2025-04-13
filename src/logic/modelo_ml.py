@@ -1,4 +1,7 @@
+import os
+
 import pandas as pd
+from dotenv import load_dotenv
 from matplotlib import pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
@@ -7,11 +10,14 @@ from sklearn.tree import plot_tree
 
 from src.logic.data import cargar_estaciones_api
 
-API_URL = (
-    "https://gis.transmilenio.gov.co/arcgis/rest/services/"
-    "Troncal/consulta_estaciones_troncales/FeatureServer/0/"
-    "query?outFields=*&where=1%3D1&f=geojson"
-)
+
+load_dotenv()  # Carga desde .env
+
+API_URL = os.getenv("API_TRANSMILENIO")
+
+if not API_URL:
+    raise ValueError("No se encontró la variable API_TRANSMILENIO en el archivo .env")
+
 
 # 1. Obtener datos desde la API
 estaciones = cargar_estaciones_api(API_URL)
@@ -60,3 +66,14 @@ def predecir_troncal_por_coords(lat, lon):
     return troncal
 
 
+def exportar_estaciones_csv(estaciones, ruta_csv):
+    """
+    Exporta la lista de estaciones a un archivo CSV.
+
+    Parámetros:
+        estaciones (list): Lista de diccionarios con datos de estaciones.
+        ruta_csv (str): Ruta donde guardar el archivo CSV.
+    """
+    df = pd.DataFrame(estaciones)
+    df.to_csv(ruta_csv, index=False, encoding='utf-8')
+    print(f"✅ Datos exportados a {ruta_csv}")

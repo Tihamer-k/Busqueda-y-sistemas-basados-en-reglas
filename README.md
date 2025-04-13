@@ -1,7 +1,7 @@
 # Búsqueda y sistemas basados en reglas 
 ## 🚏 Sistema Experto para Rutas de TransMilenio
 
-📎 Versión: `1.0.3`
+📎 Versión: `1.0.4`
 
 Este es un sistema experto desarrollado en Python utilizando Tkinter para la interfaz gráfica.
 Permite a los usuarios:
@@ -47,13 +47,18 @@ Antes de ejecutar el programa, asegúrate de tener instaladas las dependencias n
 3. 💡 En la pestaña "Predicción de Troncal (ML)":
    - Ingresa una latitud y longitud.
    - Obtendrás la troncal predicha según tu ubicación geográfica.
+   - También puedes ver el arbol de decisión utilizado para la predicción.
 4. 🌐 El sistema puede abrir Google Maps con la ubicación seleccionada.
 
 ## 📂 Estructura del Proyecto
 
 ```
 Proyecto/
-│── resources/              # 📂 Recursos del proyecto
+│── resources/                      # 📂 Recursos del proyecto
+│   └── modelo_troncal.pkl          # 🎯 Modelo de predicción guardado
+│   └── label_encoder_troncal.pkl   # 🧾 Codificador de etiquetas de troncal
+│   └── estaciones_transmilenio.csv # 📊 Exportación del dataset procesado
+│   └── arbol_decision.png          # 🌳 Visualización del árbol de decisión
 │── src/
 │   │── gui/                # 🎨 Código de la interfaz gráfica con Tkinter
 │   │   │── app.py          # 💅 Inicializa la aplicación de rutas y predicción
