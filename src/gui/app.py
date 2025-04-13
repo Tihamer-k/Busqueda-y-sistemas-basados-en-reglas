@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from src.gui.autocombo import AutocompleteCombobox
 from src.logic.data import cargar_estaciones_api
 from src.logic.modelo_ml import predecir_troncal_por_coords, exportar_estaciones_csv
+from src.logic.modelo_unsupervisado import realizar_agrupamiento_kmeans
 from src.logic.routing import (
     construir_grafo_estaciones,
     buscar_mejor_ruta_estaciones,
@@ -106,42 +107,82 @@ class RouteApp:
         frame = ttk.Frame(self.tab_rutas, padding=10)
         frame.pack(fill=tk.BOTH, expand=True)
 
-        ttk.Label(frame, text="Estación de Origen: ").grid(row=0, column=0, sticky=tk.W)
+        # Sección: Selección de estaciones
+        ttk.Label(frame, text="🔄 Selección de estaciones:").grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=(0, 5))
+        ttk.Label(frame, text="Selecciona la estación de origen y destino para calcular la mejor ruta.").grid(row=1, column=0, columnspan=2, sticky=tk.W, pady=(0, 10))
+
+        ttk.Label(frame, text="Estación de Origen: ").grid(row=2, column=0, sticky=tk.W)
         self.origen_cb = AutocompleteCombobox(frame, width=50)
         self.origen_cb.set_completion_list(self.lista_estaciones)
-        self.origen_cb.grid(row=0, column=1, padx=5, pady=5)
+        self.origen_cb.grid(row=2, column=1, padx=5, pady=5)
 
-        ttk.Label(frame, text="Estación de Destino: ").grid(row=1, column=0, sticky=tk.W)
+        ttk.Label(frame, text="Estación de Destino: ").grid(row=3, column=0, sticky=tk.W)
         self.destino_cb = AutocompleteCombobox(frame, width=50)
         self.destino_cb.set_completion_list(self.lista_estaciones)
-        self.destino_cb.grid(row=1, column=1, padx=5, pady=5)
+        self.destino_cb.grid(row=3, column=1, padx=5, pady=5)
+
+        # Divider
+        ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=4, column=0, columnspan=2, sticky=tk.EW, pady=10)
+
+        # Sección: Búsqueda de ruta
+        ttk.Label(frame, text="🔍 Búsqueda de ruta:").grid(row=5, column=0, columnspan=2, sticky=tk.W, pady=(0, 5))
+        ttk.Label(frame, text="Haz clic en el botón para buscar la mejor ruta entre las estaciones seleccionadas.").grid(row=6, column=0, columnspan=2, sticky=tk.W, pady=(0, 10))
 
         self.buscar_btn = ttk.Button(frame, text="Buscar Ruta", command=self.calcular_ruta)
-        self.buscar_btn.grid(row=2, column=0, columnspan=2, pady=10)
+        self.buscar_btn.grid(row=7, column=0, columnspan=2, pady=10)
 
-        self.resultado_text = tk.Text(frame, wrap=tk.WORD, width=80, height=20)
-        self.resultado_text.grid(row=3, column=0, columnspan=2, pady=10)
+        # Divider
+        ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=8, column=0, columnspan=2, sticky=tk.EW, pady=10)
+
+        # Sección: Resultados
+        ttk.Label(frame, text="📋 Resultados:").grid(row=9, column=0, columnspan=2, sticky=tk.W, pady=(0, 5))
+
+        self.resultado_text = tk.Text(frame, wrap=tk.WORD, width=90, height=10)
+        self.resultado_text.grid(row=11, column=0, columnspan=2, pady=10)
 
     def init_tab_prediccion(self):
         frame = ttk.Frame(self.tab_prediccion, padding=10)
         frame.pack(fill=tk.BOTH, expand=True)
 
-        ttk.Label(frame, text="Latitud:").grid(row=0, column=0, sticky=tk.W)
-        self.lat_entry = ttk.Entry(frame, width=30)
-        self.lat_entry.grid(row=0, column=1, padx=5, pady=5)
+        # Sección: Entrada de coordenadas
+        ttk.Label(frame, text="🔢 Entrada de Coordenadas:").grid(row=0, column=0, columnspan=2, sticky=tk.W, pady=(0, 5))
+        ttk.Label(frame, text="Ingresa la latitud y longitud para predecir la troncal correspondiente.").grid(row=1, column=0, columnspan=2, sticky=tk.W, pady=(0, 10))
 
-        ttk.Label(frame, text="Longitud:").grid(row=1, column=0, sticky=tk.W)
+        ttk.Label(frame, text="Latitud:").grid(row=2, column=0, sticky=tk.W)
+        self.lat_entry = ttk.Entry(frame, width=30)
+        self.lat_entry.grid(row=2, column=1, padx=5, pady=5)
+
+        ttk.Label(frame, text="Longitud:").grid(row=3, column=0, sticky=tk.W)
         self.lon_entry = ttk.Entry(frame, width=30)
-        self.lon_entry.grid(row=1, column=1, padx=5, pady=5)
+        self.lon_entry.grid(row=3, column=1, padx=5, pady=5)
+
+        # Divider
+        ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=4, column=0, columnspan=2, sticky=tk.EW, pady=10)
+
+        # Sección: Botones de acciones
+        ttk.Label(frame, text="⚙️ Acciones Disponibles:").grid(row=5, column=0, columnspan=2, sticky=tk.W, pady=(0, 5))
+        ttk.Label(frame, text="Selecciona una acción para realizar predicciones o visualizar resultados.").grid(row=6, column=0, columnspan=2, sticky=tk.W, pady=(0, 10))
 
         self.pred_btn = ttk.Button(frame, text="Predecir Troncal", command=self.mostrar_prediccion_troncal)
-        self.pred_btn.grid(row=2, column=0, columnspan=2, pady=10)
+        self.pred_btn.grid(row=7, column=0, columnspan=2, pady=10)
+        ttk.Label(frame, text="🔍 Predice la troncal correspondiente a las coordenadas ingresadas.").grid(row=8, column=0, columnspan=2, sticky=tk.W)
 
         self.arbol_btn = ttk.Button(frame, text="Ver Árbol de Decisión", command=self.mostrar_arbol_decision)
-        self.arbol_btn.grid(row=2, column=1, pady=10)
+        self.arbol_btn.grid(row=9, column=0, columnspan=2, pady=10)
+        ttk.Label(frame, text="🌳 Muestra el árbol de decisión utilizado para la predicción.").grid(row=10, column=0, columnspan=2, sticky=tk.W)
 
-        self.pred_text = tk.Text(frame, wrap=tk.WORD, width=80, height=12)
-        self.pred_text.grid(row=3, column=0, columnspan=2, pady=10)
+        self.kmeans_btn = ttk.Button(frame, text="Ver Agrupamiento KMeans", command=self.mostrar_agrupamiento_kmeans)
+        self.kmeans_btn.grid(row=11, column=0, columnspan=2, pady=10)
+        ttk.Label(frame, text="📊 Visualiza el agrupamiento KMeans de las estaciones.").grid(row=12, column=0, columnspan=2, sticky=tk.W)
+
+        # Divider
+        ttk.Separator(frame, orient=tk.HORIZONTAL).grid(row=13, column=0, columnspan=2, sticky=tk.EW, pady=10)
+
+        # Sección: Resultados
+        ttk.Label(frame, text="📋 Resultados de Predecir Troncal:").grid(row=14, column=0, columnspan=2, sticky=tk.W, pady=(0, 5))
+
+        self.pred_text = tk.Text(frame, wrap=tk.WORD, width=90, height=5)
+        self.pred_text.grid(row=16, column=0, columnspan=2, pady=10)
 
     def init_tab_mapa(self):
         frame = ttk.Frame(self.tab_mapa, padding=10)
@@ -214,7 +255,7 @@ class RouteApp:
                 encoder = joblib.load("resources/label_encoder_troncal.pkl")
                 self.pred_text.insert(tk.END, f"➡️ Etiquetas originales: {encoder.classes_}\n")
                 self.pred_text.insert(tk.END, "✅ Predicción realizada con éxito.")
-                
+
                 # Exportar estaciones a CSV
                 exportar_estaciones_csv(self.estaciones, "resources/estaciones_transmilenio.csv")
             else:
@@ -252,6 +293,40 @@ class RouteApp:
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo cargar el árbol de decisión:\n{e}")
+
+    def mostrar_agrupamiento_kmeans(self):
+        """
+        Muestra la imagen del agrupamiento KMeans en un pop-up.
+        """
+        try:
+            # Verificar si el archivo existe
+            if not os.path.exists("resources/agrupamiento_kmeans.png"):
+                realizar_agrupamiento_kmeans()
+
+
+            # Cargar la imagen del agrupamiento KMeans
+            agrupamiento_path = "resources/agrupamiento_kmeans.png"
+            agrupamiento_img = Image.open(agrupamiento_path)
+            agrupamiento_img = agrupamiento_img.resize((600, 400), Image.Resampling.LANCZOS)  # Redimensionar si es necesario
+            agrupamiento_tk = ImageTk.PhotoImage(agrupamiento_img)
+
+            # Crear una nueva ventana para mostrar la imagen
+            agrupamiento_window = tk.Toplevel(self.root)
+            agrupamiento_window.title("Agrupamiento KMeans")
+            agrupamiento_window.geometry("720x520")
+
+            # Mostrar la imagen en un label
+            label = tk.Label(agrupamiento_window, image=agrupamiento_tk)
+            label.image = agrupamiento_tk  # Referencia para evitar que la imagen sea recolectada por el GC
+            label.pack()
+
+            # Agregar una descripción debajo de la imagen
+            descripcion = tk.Label(agrupamiento_window, text="Este es el resultado del agrupamiento KMeans.",
+                                   font=("Arial", 10))
+            descripcion.pack(pady=10)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo cargar el agrupamiento KMeans:\n{e}")
 
     def mostrar_en_mapa(self):
         estacion_nombre = self.estacion_cb.get().strip()
